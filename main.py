@@ -4,19 +4,31 @@ import tkinter
 from collections import deque
 import time
 import unidecode
+from gtts import gTTS
+import playsound
+import os
 
 
 def generate_random_number():
-    return randint(0, 1000)
+    return randint(0, 10)
 
 
-def translate_number(number):
+def translate_number():
     return num2words(numbers[0], lang='es')
 
 
-def show_correct_answer_message():
+def activate_speech(correct_answer):
+    language = "es"
+    speech = gTTS(text=correct_answer, lang=language, slow=False)
+    speech.save("audio.mp3")
+    playsound.playsound("audio.mp3", True)
+    os.remove('audio.mp3')
+
+
+def show_correct_answer_message(correct_answer):
     correct_answer_message.place(x=270, y=240)
     correct_answer_message.config(font=("Courier", 10, "bold"), background="#EAECEE", fg="#229954")
+    activate_speech(correct_answer)
     root.update()
     time.sleep(1.5)
     correct_answer_message.place_forget()
@@ -41,14 +53,14 @@ def show_hint(correct_answer):
 def check_correct_answer(user_answer, numbers):
     global win_points
     global lose_points
-    correct_answer = translate_number(number)
+    correct_answer = translate_number()
 
     if user_answer == "":
         show_hint(correct_answer)
     elif user_answer == unidecode.unidecode(correct_answer):
         win_points += 1
         numbers.popleft()
-        show_correct_answer_message()
+        show_correct_answer_message(correct_answer)
         main_label.config(text=f"Translate: {numbers[0]}")
     else:
         lose_points += 1
@@ -57,7 +69,7 @@ def check_correct_answer(user_answer, numbers):
 
 
 def click_button():
-    correct_answer = translate_number(numbers[0])
+    correct_answer = translate_number()
     hint_message.place_forget()
     revealed_answer.place(x=300, y=220, anchor="center")
     revealed_answer.config(text=correct_answer, font=("Courier", 9), background="#EAECEE", fg="#3498DB")
